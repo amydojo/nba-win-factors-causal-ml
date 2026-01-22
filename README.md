@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
-> Causal discovery + interpretable ML to identify key factors behind NBA wins (2015–2024)
+> Causal discovery + interpretable ML to identify key factors behind NBA wins (2016–2017 season)
 
 ## 📋 Project Summary
 
@@ -21,44 +21,36 @@ This project combines **causal inference** and **interpretable machine learning*
 
 ### Data Collection
 - **Source:** NBA API (`nba_api` package)
-- **Period:** 2015-16 through 2023-24 seasons
-- **Scope:** Team-level game statistics including shooting percentages, rebounds, assists, turnovers, steals, and blocks
+- **Period:** 2016-2017 season
+- **Scope:** Team-level and player-level game statistics including shooting percentages, rebounds, assists, turnovers, steals, and blocks
 
 ### Causal Discovery
-We apply the **PC (Peter-Clark) algorithm** from the `pgmpy` library to discover causal structure:
+We apply causal discovery algorithms using the `causalnex` library:
 - Identifies conditional independence relationships
 - Constructs a directed acyclic graph (DAG) representing causal connections
-- Distinguishes correlation from causation
+- Distinguishes correlation from causation using Bayesian networks
 
 ### Interpretable Machine Learning
 Multiple models are trained to validate causal findings:
-- **XGBoost:** Gradient boosting for high accuracy
 - **Random Forest:** Ensemble learning with built-in feature importance
-- **SHAP Analysis:** SHapley Additive exPlanations for model interpretability
+- **Decision Trees:** Interpretable tree-based models with pruning
+- **Feature Engineering:** Advanced statistical features from game data
 
 ## 📊 Results
 
+See the [full report](reports/STATS%20295%20Final%20Report.pdf) for detailed findings and analysis.
+
 ### Key Findings
 
-| Factor | Correlation with Wins | Causal Strength | Interpretation |
-|--------|----------------------|-----------------|----------------|
-| **Field Goal %** | 0.78 | ★★★★★ | Strongest direct predictor of wins |
-| **Assists** | 0.65 | ★★★★☆ | Strong causal link to team offense |
-| **Turnovers** | -0.52 | ★★★☆☆ | Negative impact on win probability |
-| **3-Point %** | 0.58 | ★★★☆☆ | Indirect effect through spacing |
-| **Rebounds** | 0.42 | ★★☆☆☆ | Moderate influence on possession |
+The analysis reveals the causal structure of factors influencing NBA game outcomes, with particular focus on:
+- Shooting efficiency metrics (field goal %, 3-point %, free throw %)
+- Ball movement and possession (assists, turnovers)
+- Rebounding and defensive statistics
+- Player-level contributions to team success
 
-### Causal Insights
-1. **Field goal percentage** has the strongest direct causal effect on wins
-2. **Three-point shooting** influences wins indirectly by creating better spacing and assist opportunities
-3. **Assists** show strong causal relationship, not just correlation
-4. **Turnovers** have a clear negative causal impact on game outcomes
-5. Defensive stats (steals, blocks) show moderate but measurable causal effects
+### Interactive Visualization
 
-### Model Performance
-- **XGBoost Accuracy:** ~85% in predicting game outcomes
-- **Feature Importance:** Aligns strongly with causal discovery findings
-- **Cross-validation:** Consistent results across different seasons
+An [interactive network diagram](https://amydojo.github.io/nba-win-factors-causal-ml/) visualizes the discovered causal relationships between NBA statistics and game outcomes.
 
 ## 🚀 How to Run
 
@@ -86,44 +78,38 @@ jupyter notebook
 
 ### Running the Analysis
 
-Execute the notebooks in order:
+Open and run the main analysis notebook:
 
-1. **`notebooks/01_data_collection.ipynb`**
-   - Fetches NBA team statistics using the NBA API
-   - Cleans and preprocesses the data
-   - Saves processed data to `data/processed/`
+**`notebooks/STAT295_Project_2.ipynb`**
+- Fetches NBA data using the NBA API
+- Performs data cleaning and preprocessing
+- Conducts causal discovery using CausalNex
+- Builds and evaluates machine learning models
+- Generates visualizations and exports results
 
-2. **`notebooks/02_causal_discovery.ipynb`**
-   - Performs causal discovery using the PC algorithm
-   - Constructs and visualizes the causal DAG
-   - Generates the interactive network visualization
-
-3. **`notebooks/03_interpretable_ml.ipynb`**
-   - Trains machine learning models
-   - Performs SHAP analysis for interpretability
-   - Validates causal findings with ML feature importance
+The notebook uses the preprocessed data files in `data/processed/`:
+- `nba_games_cleaned.csv` - Cleaned team game statistics
+- `nba_players_2016_2017.csv` - Player-level statistics for 2016-2017 season
 
 ## 📁 File Tour
 
 ```
 nba-win-factors-causal-ml/
 │
-├── notebooks/                          # Jupyter notebooks for analysis
-│   ├── 01_data_collection.ipynb       # Data fetching and preprocessing
-│   ├── 02_causal_discovery.ipynb      # Causal inference with PC algorithm
-│   └── 03_interpretable_ml.ipynb      # ML models and SHAP analysis
+├── notebooks/
+│   └── STAT295_Project_2.ipynb        # Main analysis notebook
 │
 ├── data/
-│   └── processed/                      # Cleaned, analysis-ready datasets
-│       └── (nba_team_stats.csv)       # Generated by running notebooks
+│   └── processed/
+│       ├── nba_games_cleaned.csv      # Cleaned team statistics
+│       └── nba_players_2016_2017.csv  # Player statistics (2016-17)
 │
-├── outputs/                            # Analysis outputs
-│   ├── nba_network.html               # Interactive causal network viz
-│   ├── (causal_graph.gml)             # Graph structure file
-│   ├── (shap_feature_importance.png)  # SHAP visualization
-│   └── (nba_win_predictor.pkl)        # Trained ML model
+├── outputs/
+│   └── nba_network.html               # Interactive causal network visualization
 │
-├── reports/                            # Analysis reports and summaries
+├── reports/
+│   ├── STATS 295 Final Report.pdf     # Comprehensive project report
+│   └── pruned_dt_explation.pdf        # Decision tree model explanation
 │
 ├── docs/
 │   └── index.html                      # GitHub Pages site (causal network)
@@ -131,22 +117,19 @@ nba-win-factors-causal-ml/
 ├── requirements.txt                    # Python dependencies
 ├── README.md                           # This file
 └── LICENSE                             # MIT License
-
-Note: Files in parentheses are generated when running the notebooks
 ```
 
 ## 🛠️ Technology Stack
 
 - **Data:** `pandas`, `numpy`, `nba_api`
-- **Causal Inference:** `dowhy`, `pgmpy`, `causalml`
+- **Causal Inference:** `causalnex`
 - **Machine Learning:** `scikit-learn`, `xgboost`, `lightgbm`
-- **Interpretability:** `shap`
 - **Visualization:** `matplotlib`, `seaborn`, `plotly`, `networkx`
 - **Environment:** `jupyter`, `ipykernel`
 
 ## 📈 Future Work
 
-- [ ] Extend analysis to player-level statistics
+- [ ] Extend analysis to multiple NBA seasons (2015-2024)
 - [ ] Incorporate temporal dynamics (momentum, streaks)
 - [ ] Add playoff vs. regular season comparison
 - [ ] Develop causal effect estimation with treatment effects
@@ -160,7 +143,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - NBA data provided by [nba_api](https://github.com/swar/nba_api)
 - Causal inference methods inspired by Judea Pearl's work
-- SHAP methodology from Lundberg & Lee (2017)
+- Statistical analysis course: STATS 295
 
 ## 📧 Contact
 
